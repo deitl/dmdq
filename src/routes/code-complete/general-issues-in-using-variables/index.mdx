@@ -1,0 +1,205 @@
+---
+title: 使用变量的一些原则
+contributors:
+  - li.tang
+---
+
+import { Card } from "./components/flowbite-ui/Card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionHead,
+} from "./components/flowbite-ui/accordion/Accordion";
+
+<div class="flex flex-col items-center justify-center gap-4">
+  <h2 class="w-full xl:w-2/3">使用变量的一些原则</h2>
+  <Accordion class="w-full xl:w-2/3">
+    <AccordionHead title="初始化" id="ah1" contentId="ac1" />
+    <AccordionContent id="ac1" headId="ah1">
+      <div class="space-y-4">
+        <Card title="声明时初始化">
+          <div class="space-y-4">
+            <div class="space-y-2">
+              <div class="italic text-red-500">Bad</div>
+              ```tsx
+              var a;
+              ```
+            </div>
+            <div class="space-y-2">
+              <div class="italic text-green-500">Good</div>
+              ```tsx
+              var a = 1;
+              ```
+            </div>
+          </div>
+        </Card>
+        <Card title="靠近使用的位置初始化">
+          <div class="space-y-4">
+            <div class="space-y-2">
+              <div class="italic text-red-500">Bad</div>
+              ```tsx
+              var a = 1;
+              var funcA = () => {};
+              var funcB = () => {};
+              var funcC = () => {};
+              ...
+              var funcZ = () => {
+                return a + 1;
+              };
+              funcZ();
+              ```
+            </div>
+            <div class="space-y-2">
+              <div class="italic text-green-500">Good</div>
+              ```tsx
+              var funcA = () => {};
+              var funcB = () => {};
+              var funcC = () => {};
+              ...
+              var a = 1;
+              var funcZ = () => {
+                return a + 1;
+              };
+              funcZ();
+              ```
+            </div>
+          </div>
+        </Card>
+        <Card title="一次性初始化常量">
+              ```tsx
+              var PRIMARY_COLOR = 'red';
+              var TEXT_COLOR = 'black';
+              ```
+        </Card>
+        <Card title="可执行代码初始化变量">
+          <div class="space-y-4">
+            <div class="space-y-2">
+              <div class="italic text-red-500">Bad</div>
+              ```tsx
+              var userCount = 420;
+              ```
+            </div>
+            <div class="space-y-2">
+              <div class="italic text-green-500">Good</div>
+              ```tsx
+              var userCount = getUserCount();
+              ```
+            </div>
+          </div>
+        </Card>
+      </div>
+    </AccordionContent>
+    <AccordionHead title="作用域" id="ah2" contentId="ac2" />
+    <AccordionContent id="ac2" headId="ah2">
+      <div class="space-y-4">
+        <Card title="局部化变量引用">
+          <div class="space-y-4">
+            <div>介于同一变量多个引用点之间的代码称为“攻击窗口”，可能存在新代码添加进窗口中，修改变量，从而产生问题。</div>
+            <div>将引用点集中在一起称为局部化，可有效解决该问题。</div>
+            <div class="space-y-2">
+              <div class="italic text-red-500">Bad：变量a跨度为2</div>
+              ```tsx
+              var a = 0;
+              var b = 0;
+              var c = 0;
+              a = b + c;
+              ```
+            </div>
+            <div class="space-y-2">
+              <div class="italic text-green-500">Good：变量b平均跨度为0.5</div>
+              ```tsx
+              var a = 0;
+              var b = 0;
+              var c = 0;
+              b = a + 1;
+              b = b / c;
+              ```
+            </div>
+          </div>
+        </Card>
+        <Card title="缩短变量存活时间">
+          <div class="space-y-4">
+            <div>某一变量最初引用点（含）和最终引用点（含）之间代码行数称为存活时间。</div>
+            <div>缩短变量存活时间同样是为了解决攻击窗口问题。</div>
+            <div class="space-y-2">
+              <div class="italic text-red-500">Bad：变量a,b,c存活时间分别为50,69,88</div>
+              ```tsx
+              01 var a = 0;
+              02 var b = 0;
+              03 var c = 0;
+              ...
+              50 a = a + 1;
+              ...
+              70 b = b + 1;
+              ...
+              90 c = c + 1;
+              ```
+            </div>
+            <div class="space-y-2">
+              <div class="italic text-green-500">Good：变量a,b,c存活时间均为2</div>
+              ```tsx
+              01 var a = 0;
+              02 a = a + 1;
+              03 var b = 0;
+              04 b = b + 1;
+              05 var c = 0;
+              06 c = c + 1;
+              ```
+            </div>
+          </div>
+        </Card>
+        <Card title="缩小变量作用域">
+          <div class="space-y-4">
+            <div>将变量的赋值和使用语句放到一起，提取为子程序，并采用严格的可见性（public/protected/private）控制。</div>
+          </div>
+        </Card>
+      </div>
+    </AccordionContent>
+    <AccordionHead title="持续性" id="ah3" contentId="ac3" />
+    <AccordionContent id="ac3" headId="ah3">
+      <div class="space-y-4">
+        <Card title="数据的生命周期">
+          <div class="space-y-4">
+            <div>数据所处的上下文决定了它的生命周期，可能是在一段for循环中持续存在，也可能覆盖整个程序的生命周期，取决于你什么时候销毁，如果持久化了，就可能永远持续。</div>
+          </div>
+        </Card>
+      </div>
+    </AccordionContent>
+    <AccordionHead title="绑定时间" id="ah4" contentId="ac4" />
+    <AccordionContent id="ac4" headId="ah4">
+      <div class="space-y-4">
+        <div>变量与值绑定的时间即为绑定时间</div>
+        <Card title="绑定时间节点">
+          <div class="space-y-4">
+            <div>编码时（使用神秘数值）</div>
+            <div>编译时（使用具名常量）</div>
+            <div>加载时（从外部数据源中读取数据）</div>
+            <div>对象实例化时（例如每次渲染时读取数据）</div>
+            <div>即时（例如每次重绘时读取数据）</div>
+          </div>
+        </Card>
+        <Card title="灵活性与复杂度">
+          <div class="space-y-4">
+            <div>绑定时间越早灵活性越差，复杂度越低。</div>
+          </div>
+        </Card>
+      </div>
+    </AccordionContent>
+    <AccordionHead title="单一用途" id="ah5" contentId="ac5" />
+    <AccordionContent id="ac5" headId="ah5">
+      <div class="space-y-4">
+        <Card title="避免隐含含义代码">
+          <div class="space-y-4">
+            <div>为变量赋予不同含义时值域不同，例如变量customerId可能代表某个客户账号，除非它的取值大于500000，在这种情况下，你通过减去500000来得到过期账户的号码</div>
+          </div>
+        </Card>
+        <Card title="确保使用所有声明变量">
+          <div class="space-y-4">
+            <div>未引用的变量与错误率呈正相关</div>
+          </div>
+        </Card>
+      </div>
+    </AccordionContent>
+
+  </Accordion>
+</div>
